@@ -1,0 +1,12 @@
+.env
+.env.*
+!.env.example
+
+node_modules/
+dist/
+.spotify-token.json
+
+.DS_Store
+Thumbs.db
+.vscode/
+*.log
