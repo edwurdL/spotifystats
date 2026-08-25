@@ -6,7 +6,8 @@
 
 import http from "node:http";
 import crypto from "node:crypto";
-import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
+import path from "node:path";
 
 const TOKEN_FILE = ".spotify-token.json";
 const SCOPES = "user-top-read";
@@ -344,7 +345,13 @@ function formatReceipt(tracks: TrackLine[]): string {
 
 // ---- main ------------------------------------------------------------------
 
-const RECEIPT_FILE = "receipt.txt";
+const RECEIPTS_DIR = "receipts";
+
+function receiptFilePath(): string {
+  mkdirSync(RECEIPTS_DIR, { recursive: true });
+  const date = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  return path.join(RECEIPTS_DIR, `receipt-${date}.txt`);
+}
 
 async function main(): Promise<void> {
   const accessToken = await getAccessToken();
@@ -354,9 +361,10 @@ async function main(): Promise<void> {
   console.log(`✅ Fetched ${tracks.length} top tracks.\n`);
 
   const receipt = formatReceipt(tracks);
-  writeFileSync(RECEIPT_FILE, receipt);
+  const receiptFile = receiptFilePath();
+  writeFileSync(receiptFile, receipt);
   console.log(receipt);
-  console.log(`\n📄 Written to ${RECEIPT_FILE}`);
+  console.log(`\n📄 Written to ${receiptFile}`);
 }
 
 main().catch((err) => {
